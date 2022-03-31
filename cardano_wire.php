@@ -1,15 +1,15 @@
 <?php
-/**
- *  *
- *   *  * @package cardanowire
- *    *
- *     *   */
-
 /*
- *  *
- *   * Plugin Name: Pressmint's cardanowire plugin
- *    *
- *     *
+ *
+ * @package cardano_wire
+ * @author Marvin Byrd
+ * @copyright Marvin Byrd
+ * @license           GPL-3.0
+ * @wordpress-plugin
+ * Plugin Name: Cardano Wire
+ * Description: A plugin that allows the user to search and pull articles off the cardano block chain and ipfs file storage for review and publishing on their own site
+ * Version:           1.0.0 
+ * Author:            Marvin Byrd
  *      *
  *       * */
 
