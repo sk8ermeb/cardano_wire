@@ -40,14 +40,15 @@ function getasset($asset, $apikey)
 }
 function teststuff($apikey)
 {
-	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/721?count=1";
+	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/721?count=1&page=2";
 	$metas =  getfrosted($url, $apikey);
 	print_r($metas);
 }
-function gettxmetas($apikey)
+function gettxmetas($apikey, $page=1)
 {
-	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/1985";
+	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/1985?page=$page";
 	$metas =  getfrosted($url, $apikey);
+	$nftarr = [];
 	foreach ($metas as $meta)
 	{
 		//print_r($meta->json_metadata);
@@ -57,6 +58,12 @@ function gettxmetas($apikey)
 		$nft_meta = $nft->$nft_name;
 		$ext = $nft_meta->ext;
 		$tags = $nft_meta->tags;
+		$tagr = explode(',', $tags);
+		$size = count($tagr);
+		for ($x = 0; $x <= $size; $x++) {
+			$tagr[$x] = trim($tagr[$x], $characters = " \n\r\t\v\x00");
+		}
+	
 		$ipfs = $nft_meta->article;
 		$mintdate = $nft_meta->mintdate;
 		$hexname = bin2hex($nft_name);
@@ -64,15 +71,24 @@ function gettxmetas($apikey)
 		$asseturl = "https://cardano-mainnet.blockfrost.io/api/v0/assets/$asset";
 		//print($asseturl);
 		$assitblockinfo =  getfrosted($asseturl, $apikey);
+		print("Asset block info=\n");
 		//print_r($assitblockinfo);
+		//$mintxhash=$assitblockinfo->initial_mint_tx_hash;
+
 		$assettxurl = "https://cardano-mainnet.blockfrost.io/api/v0/assets/$asset/transactions";
 		$assettxs = getfrosted($assettxurl, $apikey);
+		$minttime = $assettxs[0]->block_time;
+		//$epoch = 1483228800;
+		$dt = new DateTime("@$minttime");  // convert UNIX timestamp to PHP DateTime
+		$mintdate =  $dt->format('Y-m-d H:i:s'); // output = 2017-01-01 00:00:00
 		$lasttx = end($assettxs);
 		$curtxofasset = $lasttx->tx_hash;
-		//print("\n $curtxofasset \n");
-		//print_r($assettxs);
+
+		print("\nCurrebt tx of asset=  $curtxofasset \n asset txs=\n");
+		print_r($assettxs);
 		$txutxourls = "https://cardano-mainnet.blockfrost.io/api/v0/txs/$curtxofasset/utxos";
 		$utxos = getfrosted($txutxourls, $apikey);
+		print("utxos=\n");
 		print_r($utxos);
 		$lovelace = 0;
 		$assetaddr = "";
@@ -97,12 +113,13 @@ function gettxmetas($apikey)
 				break;
 			}
 		}
-		print("lovelace on utxo is $lovelace and the owner is $assetaddr on transaction $curtxofasset");
-		
-
+		$nftentry = ['name'=>$nft_name, 'ipfs'=>$ipfs, 'mintdate'=>$mintdate, 'tags'=>$tagr, 'policy'=>$policy, 'asset'=>$asset, 'ada'=>$lovelace, 'owner'=>$assetaddr];
+		array_push($nftarr, $nftentry);
+		//print("lovelace on utxo is $lovelace and the owner is $assetaddr on transaction $curtxofasset");
 		
 	}
-	//print_r($metas);
+	print("final results=\n");
+	print_r($nftarr);
 }
 function getapi()
 {
@@ -119,5 +136,5 @@ function getapi()
 //teststuff($apikey)
 //gettxmetas($apikey);
 $apikey = getapi();
-teststuff($apikey);
+//teststuff($apikey);
 ?>
