@@ -7,7 +7,11 @@ function getfrosted($url, $apikey)
     )
   );
 	$context = stream_context_create($headers);
-	$json = file_get_contents($url, false, $context);
+	$json = @file_get_contents($url, false, $context);
+	if($json === false)
+	{
+		return false;
+	}
 	$results = json_decode($json);
 	return $results;
 	
@@ -49,6 +53,10 @@ function gettxmetas($apikey, $page=1)
 	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/1985?page=$page";
 	$metas =  getfrosted($url, $apikey);
 	$nftarr = [];
+	if($metas === false)
+	{
+		return $nftarr;
+	}
 	foreach ($metas as $meta)
 	{
 		//print_r($meta->json_metadata);
@@ -60,18 +68,23 @@ function gettxmetas($apikey, $page=1)
 		$tags = $nft_meta->tags;
 		$tagr = explode(',', $tags);
 		$size = count($tagr);
-		for ($x = 0; $x <= $size; $x++) {
-			$tagr[$x] = trim($tagr[$x], $characters = " \n\r\t\v\x00");
+		$tago = [];
+		for ($x = 0; $x < $size; $x++) {
+			$tag =  trim($tagr[$x], $characters = " \n\r\t\v\x00");
+			if(strlen($tag)>0)
+			{
+				array_push($tago, $tag);
+			}
 		}
 	
 		$ipfs = $nft_meta->article;
-		$mintdate = $nft_meta->mintdate;
+		//$mintdate = $nft_meta->mintdate;
 		$hexname = bin2hex($nft_name);
 		$asset = "$policy$hexname";
-		$asseturl = "https://cardano-mainnet.blockfrost.io/api/v0/assets/$asset";
+		//$asseturl = "https://cardano-mainnet.blockfrost.io/api/v0/assets/$asset";
 		//print($asseturl);
-		$assitblockinfo =  getfrosted($asseturl, $apikey);
-		print("Asset block info=\n");
+		//$assitblockinfo =  getfrosted($asseturl, $apikey);
+		//print("Asset block info=\n");
 		//print_r($assitblockinfo);
 		//$mintxhash=$assitblockinfo->initial_mint_tx_hash;
 
@@ -84,12 +97,12 @@ function gettxmetas($apikey, $page=1)
 		$lasttx = end($assettxs);
 		$curtxofasset = $lasttx->tx_hash;
 
-		print("\nCurrebt tx of asset=  $curtxofasset \n asset txs=\n");
-		print_r($assettxs);
+		//print("\nCurrebt tx of asset=  $curtxofasset \n asset txs=\n");
+		//print_r($assettxs);
 		$txutxourls = "https://cardano-mainnet.blockfrost.io/api/v0/txs/$curtxofasset/utxos";
 		$utxos = getfrosted($txutxourls, $apikey);
-		print("utxos=\n");
-		print_r($utxos);
+		//print("utxos=\n");
+		//print_r($utxos);
 		$lovelace = 0;
 		$assetaddr = "";
 		foreach($utxos->outputs as $utxo)
@@ -113,13 +126,14 @@ function gettxmetas($apikey, $page=1)
 				break;
 			}
 		}
-		$nftentry = ['name'=>$nft_name, 'ipfs'=>$ipfs, 'mintdate'=>$mintdate, 'tags'=>$tagr, 'policy'=>$policy, 'asset'=>$asset, 'ada'=>$lovelace, 'owner'=>$assetaddr];
+		$nftentry = ['name'=>$nft_name, 'ipfs'=>$ipfs, 'mintdate'=>$mintdate, 'tags'=>$tago, 'policy'=>$policy, 'asset'=>$asset, 'lovelace'=>$lovelace, 'owner'=>$assetaddr, 'ext'=>$ext];
 		array_push($nftarr, $nftentry);
 		//print("lovelace on utxo is $lovelace and the owner is $assetaddr on transaction $curtxofasset");
 		
 	}
-	print("final results=\n");
-	print_r($nftarr);
+	//print("final results=\n");
+	return $nftarr;
+	//print_r($nftarr);
 }
 function getapi()
 {
