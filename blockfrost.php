@@ -48,7 +48,18 @@ function teststuff($apikey)
 	$metas =  getfrosted($url, $apikey);
 	print_r($metas);
 }
-function gettxmetas($apikey, $page=1)
+/*
+function AddressArticleScan($apikey, $address, $page=1)
+{
+	$url = "https://cardano-mainnet.blockfrost.io/api/v0/addresses/$address/utxos?page=$page";
+	$utxos = getfrosted($url, $apikey);
+	print("utxso: \n");
+	print_r($utxos);
+	print("\n\n");
+	return $utxos;
+}
+*/
+function ArticleScan($apikey, $page=1)
 {
 	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/1985?page=$page";
 	$metas =  getfrosted($url, $apikey);

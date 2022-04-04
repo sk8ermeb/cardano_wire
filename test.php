@@ -9,7 +9,7 @@ function test($a=1, $b=2, $c=3)
 {
 	print("a=$a b=$b c=$c");
 }
-test($arr=5);
+//test($arr=5);
 $a = "marvin, byrd,cool,  is, ";
 $b = explode(',', $a);
 $size = count($b);
@@ -27,6 +27,6 @@ $dt = new DateTime($mintdate);
 //print("==== $mintdate " );
 //print($dt);
 //$var = new DateTime("2010-05-15 16:00:00");
-//print(("asdd"==="asd"));
+print(("asdd"!=="asdd"));
 
 ?>
