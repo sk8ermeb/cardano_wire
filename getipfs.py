@@ -2,13 +2,14 @@
 
 import http.client, urllib.parse
 import sys
-import ipfshttpclient
+#import ipfshttpclient
 import os
 maxsize = 2097152
 if (len(sys.argv) ==3):
 	hsh = 'QmWf5q7JhcSbzM2kKLU9S4pPQFeHex3JBStqRsnRHuhe7x'
-	#params = urllib.parse.urlencode({'arg': hsh, 'offset': '0', 'length': '2097152'})
-	params = urllib.parse.urlencode({'arg': sys.argv[1], 'offset': '0', 'length': str(maxsize+10)})
+	hsh = 'QmYUPHGUALpqzfbbmX4s3FsNb8W6bCQCCtjZeeRoRALYAW'
+	params = urllib.parse.urlencode({'arg': hsh, 'offset': '0', 'length': '2097152'})
+	#params = urllib.parse.urlencode({'arg': sys.argv[1], 'offset': '0', 'length': str(maxsize+10)})
 	
 	headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 	conn = http.client.HTTPConnection("127.0.0.1", port=5001)
