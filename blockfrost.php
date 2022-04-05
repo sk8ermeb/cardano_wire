@@ -66,11 +66,11 @@ function ArticleScan($apikey, $page=1)
 	$nftarr = [];
 	if($metas === false)
 	{
-		return $nftarr;
+		return false;
 	}
 	foreach ($metas as $meta)
 	{
-		print_r($meta->json_metadata);
+		//print_r($meta->json_metadata);
 		$policy = key($meta->json_metadata);
 		$nft = $meta->json_metadata->$policy;
 		$nft_name = key($nft);

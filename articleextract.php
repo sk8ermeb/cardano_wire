@@ -7,9 +7,14 @@ require( '../../../wp-load.php' );
 function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $address=null)
 {
 	global $wpdb;
+	$pagecount = 1;
 	$articles = [];
 	$apikey = getapi();
-	$articles = ArticleScan($apikey, 1);
+	$totalextracted = 0;
+	$articles = ArticleScan($apikey, $pagecount);
+	while($articles!==false)
+{
+	
 	foreach($articles as $article)
 	{
 		if(!is_null($address))
@@ -85,10 +90,14 @@ function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $a
 				'article' => $lastid
 			));
 		}
-		
-		print("extracted ".$article['name']);
+		$totalextracted ++;
+		print("extracted ".$article['name']."\n");
 	}
-	print_r($articles);
+	//print_r($articles);
+	$pagecount ++;
+	$articles = ArticleScan($apikey, $pagecount);
+}
+return $totalextracted;
 }
 
 //$mintdate = date('Y-m-d H:i:s');
@@ -96,5 +105,6 @@ function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $a
 $addr = "addr1vxqxgmytq4tzxthz6dlfwj0mn3f9j5mvqlw6vehfxt84wxsw8elfe";
 $addr = "addr1vy7xr3vuj8vxr47c9lzfzrl8z5hwdaj5eflrs04hnt34fnq0grylw";
 $old = new DateTime("2022-03-29 18:04:45");
-blockarticleextract($old, 1.9, 4, ['cool'], $addr);
+$cnt = blockarticleextract($old, 1.9, 4, ['cool'], $addr);
+print(strval($cnt). " Articles extracted\n");
 ?>
