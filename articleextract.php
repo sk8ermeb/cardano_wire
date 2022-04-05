@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/blockfrost.php';
+require __DIR__ . '/ipfs.php';
 define( 'SHORTINIT', true );
 require( '../../../wp-load.php' );
 
@@ -7,14 +8,7 @@ function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $a
 {
 	$articles = [];
 	$apikey = getapi();
-	//if(is_null($address))
-	//{
 	$articles = ArticleScan($apikey, 1);
-	//}
-	//else{
-	//	$articles = AddressArticleScan($apikey, $address, 1);
-	//	return;
-	//}
 	foreach($articles as $article)
 	{
 		if(!is_null($address))
@@ -60,22 +54,15 @@ function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $a
 			}
 		}
 		$ipfshash = substr($article['ipfs'], 7);
-		$maxbytes = strval(intval($maxsize*1024*1024)+10);
-		
-		$tuCurl = curl_init(); 
-		curl_setopt($tuCurl, CURLOPT_URL, "http://127.0.0.1/api/v0/cat?arg=$ipfshash&offset=0&length=$maxbytes"); 
-		curl_setopt($tuCurl, CURLOPT_PORT , 5001); 
-		curl_setopt($tuCurl, CURLOPT_VERBOSE, 0); 
-		curl_setopt($tuCurl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($tuCurl, CURLOPT_CONNECTTIMEOUT, 5); // 5 seconds timeout
-		curl_setopt($tuCurl, CURLOPT_POST, true); // 5 seconds timeout
-
-		$tuData = curl_exec($tuCurl); 
-		curl_close($tuCurl);
+		$maxbytes = intval($maxsize*1024*1024);
 		$ext = $article['ext'];
-		$myfile = fopen("/var/www/html/nftfiles/$ipfshash.$ext.tmp", "w");
-		fwrite($myfile, $tuData);
-		fclose($myfile);
+		$filefinal = "/var/www/html/nftfiles/$ipfshash.$ext";
+		$good = getipfsfile($ipfshash, $maxbytes, $filefinal);
+		if(!$good){
+			print("Skipped ".$article['name']." too big");
+			unlink($filetmp);
+			continue;
+		}
 
 		print("extracted ".$article['name']);
 	}
