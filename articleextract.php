@@ -6,6 +6,7 @@ require( '../../../wp-load.php' );
 
 function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $address=null)
 {
+	global $wpdb;
 	$articles = [];
 	$apikey = getapi();
 	$articles = ArticleScan($apikey, 1);
@@ -63,7 +64,28 @@ function blockarticleextract($oldest=null, $minada=10, $maxsize=10, $tags=[], $a
 			unlink($filetmp);
 			continue;
 		}
-
+		$table_name_article = $wpdb->prefix . "cardanowire_articlecache";
+		$table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";
+		$res = $wpdb->insert($table_name_article, array(
+			'name' => $article['name'],
+			'location' => $filefinal,
+			'ipfs' => $ipfshash,
+			'addressowner' => $article['owner'],
+			'stackedlovelace' => $article['lovelace'],
+			'mintdate' => $article['mintdate'],
+			'policy' => $article['policy'],
+			'hash' => $article['sha'],
+			'asset' => $article['asset']
+		));
+		$lastid = $wpdb->insert_id;
+		foreach($article['tags'] as $tag)
+		{
+			$res = $wpdb->insert($table_name_articletags, array(
+				'tag' => $tag,
+				'article' => $lastid
+			));
+		}
+		
 		print("extracted ".$article['name']);
 	}
 	print_r($articles);

@@ -1,17 +1,21 @@
 <?php
 
 require __DIR__ . '/ipfs.php';
-$ipfshash = 'QmYUPHGUALpqzfbbmX4s3FsNb8W6bCQCCtjZeeRoRALYAW';
-$maxsize = 1.101;
-$filefinal = '/var/www/html/nftfiles/QmYUPHGUALpqzfbbmX4s3FsNb8W6bCQCCtjZeeRoRALYAW.zip';
-$good = getipfsfile($ipfshash, $maxsize, $filefinal);
-if($good)
-{
-	print("success\n");
+define( 'SHORTINIT', true );
+require( '../../../wp-load.php' );
 
-}
-else{
-	print("no good\n");
-}
+$filefinal = "/var/www/html/nftfiles/$ipfshash.$ext";
+$table_name_article = $wpdb->prefix . "cardanowire_articlecache";
+    $table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";
+    $res = $wpdb->insert($table_name_article, array(
+      'location' => $filefinal
+      //'ipfs' => $ipfshash,
+      //'addressowner' => $article['owner'],
+      //'stackedlovelace' => $article['lovelace'],
+      //'mintdate' => $article['mintdate'],
+      //'policy' => $article['policy'],
+      //'asset' => $article['asset']
+    ));
+    $lastid = $wpdb->insert_id;
 
 ?>

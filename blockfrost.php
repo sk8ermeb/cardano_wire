@@ -70,13 +70,14 @@ function ArticleScan($apikey, $page=1)
 	}
 	foreach ($metas as $meta)
 	{
-		//print_r($meta->json_metadata);
+		print_r($meta->json_metadata);
 		$policy = key($meta->json_metadata);
 		$nft = $meta->json_metadata->$policy;
 		$nft_name = key($nft);
 		$nft_meta = $nft->$nft_name;
 		$ext = $nft_meta->ext;
 		$tags = $nft_meta->tags;
+		$sha = $nft_meta->sha256;
 		$tagr = explode(',', $tags);
 		$size = count($tagr);
 		$tago = [];
@@ -137,7 +138,7 @@ function ArticleScan($apikey, $page=1)
 				break;
 			}
 		}
-		$nftentry = ['name'=>$nft_name, 'ipfs'=>$ipfs, 'mintdate'=>$mintdate, 'tags'=>$tago, 'policy'=>$policy, 'asset'=>$asset, 'lovelace'=>$lovelace, 'owner'=>$assetaddr, 'ext'=>$ext];
+		$nftentry = ['name'=>$nft_name, 'ipfs'=>$ipfs, 'mintdate'=>$mintdate, 'tags'=>$tago, 'policy'=>$policy, 'asset'=>$asset, 'lovelace'=>$lovelace, 'owner'=>$assetaddr, 'ext'=>$ext, 'sha'=>$sha];
 		array_push($nftarr, $nftentry);
 		//print("lovelace on utxo is $lovelace and the owner is $assetaddr on transaction $curtxofasset");
 		

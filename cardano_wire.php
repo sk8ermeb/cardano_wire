@@ -27,28 +27,23 @@ function cardanowire_install () {
 		status smallint NOT NULL DEFAULT 0,
 		location text NOT NULL DEFAULT '',
 		text text NOT NULL DEFAULT '',
+		name text NOT NULL DEFAULT '',
 		ipfs text NOT NULL DEFAULT '',
 		hash text NOT NULL DEFAULT '',
 		addressowner text NOT NULL DEFAULT '',
 		stackedlovelace text NOT NULL DEFAULT '',
+		mintdate datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+		policy text NOT NULL DEFAULT '',
+		asset text NOT NULL DEFAULT '',
 		PRIMARY KEY  (id)
 	) $charset_collate;";
 	dbDelta( $sql ); 
 
-	$table_name_tags = $wpdb->prefix . "cardanowire_tags";
-	$sql = "CREATE TABLE $table_name_tags (
-		id bigint NOT NULL AUTO_INCREMENT,
-		tag varchar(55) DEFAULT '' NOT NULL,
-		PRIMARY KEY  (id)
-	) $charset_collate;";
-	dbDelta( $sql ); 
-	
 	$table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";
 	$sql = "CREATE TABLE $table_name_articletags (
-		tag bigint NOT NULL,
+		tag varchar(55) DEFAULT '' NOT NULL,
 		article bigint NOT NULL,
 		FOREIGN KEY (article) REFERENCES $table_name_article(id),
-		FOREIGN KEY (tag) REFERENCES $table_name_tags(id),
 		PRIMARY KEY (tag,article)
 	) $charset_collate;";
 	dbDelta( $sql ); 
