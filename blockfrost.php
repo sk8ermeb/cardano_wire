@@ -7,7 +7,8 @@ function getfrosted($url, $apikey)
     )
   );
 	$context = stream_context_create($headers);
-	$json = @file_get_contents($url, false, $context);
+	//$json = @file_get_contents($url, false, $context);
+	$json = file_get_contents($url, false, $context);
 	if($json === false)
 	{
 		return false;
@@ -48,17 +49,14 @@ function teststuff($apikey)
 	$metas =  getfrosted($url, $apikey);
 	print_r($metas);
 }
-/*
-function AddressArticleScan($apikey, $address, $page=1)
+
+function IPFSGateway($apikey, $ipfshash)
 {
-	$url = "https://cardano-mainnet.blockfrost.io/api/v0/addresses/$address/utxos?page=$page";
-	$utxos = getfrosted($url, $apikey);
-	print("utxso: \n");
-	print_r($utxos);
-	print("\n\n");
-	return $utxos;
+	$url = "https://ipfs.blockfrost.io/api/v0/ipfs/gateway/$ipfshash";
+	$metas =  getfrosted($url, $apikey);
+	print_r($metas);
 }
-*/
+
 function ArticleScan($apikey, $page=1)
 {
 	$url = "https://cardano-mainnet.blockfrost.io/api/v0/metadata/txs/labels/1985?page=$page";
@@ -162,5 +160,6 @@ function getapi()
 //teststuff($apikey)
 //gettxmetas($apikey);
 $apikey = getapi();
+IPFSGateway($apikey, "QmXeq9APEF3deRP5ZQu69YatuBZ5gmHY4juwVCqyoZ6TBd");
 //teststuff($apikey);
 ?>

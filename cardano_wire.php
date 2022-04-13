@@ -9,12 +9,18 @@
  * Plugin Name: Cardano Wire
  * Description: A plugin that allows the user to search and pull articles off the cardano block chain and ipfs file storage for review and publishing on their own site
  * Version:           1.0.0 
- * Author:            Marvin Byrd
+ * Author:            Pressmint.io
  *      *
  *       * */
 
 
-//require __DIR__ . '/node.php';
+require __DIR__ . '/settings.php';
+
+add_action('admin_menu', 'cardano_wire_setup_menu');
+function cardano_wire_setup_menu(){
+	        add_menu_page( 'Cardano Wire Settings Page', 'Cardano Wire', 'manage_options', 'cardano_wire', 'cardano_wire_settings' );
+}
+
 
 register_activation_hook( __FILE__, 'cardanowire_install' );
 function cardanowire_install () {
@@ -57,9 +63,4 @@ function cardanowire_install () {
 		$position   = 4;    
 		add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position ); 
 	}
-	add_action( 'admin_menu', 'extra_post_info_menu' );  
-	//add_action( 'admin_menu', 'wpdocs_register_cardano_wire_menu_page' );
-	//function wpdocs_register_cardano_wire_menu_page() {
-	//	add_menu_page("Cardano Wire Configuration", "CW Config", "editor", "cw_wire_config", '', $icon_url = '', null );
-	//}
 }
