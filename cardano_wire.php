@@ -16,11 +16,14 @@
 
 require __DIR__ . '/settings.php';
 
-add_action('admin_menu', 'cardano_wire_setup_menu');
-function cardano_wire_setup_menu(){
-	        add_menu_page( 'Cardano Wire Settings Page', 'Cardano Wire', 'manage_options', 'cardano_wire', 'cardano_wire_settings' );
-}
-
+//add_action('admin_menu', 'cardano_wire_setup_menu');
+//function cardano_wire_setup_menu(){
+//	        add_menu_page( 'Cardano Wire Settings Page', 'Cardano Wire', 'manage_options', 'cardano_wire', 'cardano_wire_settings' );
+//}
+//add_action( 'wp_nav_menu_item_custom_fields', 'my_menu_item_field' );
+//add_action( 'wp_nav_menu_item_custom_fields', 'pr_menu_item_sub', 10, 2 );
+//add_action( 'wp_update_nav_menu_item', 'save_menu_item_sub', 10, 2 );
+//add_filter( 'nav_menu_item_title', 'show_menu_item_sub', 10, 2 );
 
 register_activation_hook( __FILE__, 'cardanowire_install' );
 function cardanowire_install () {
@@ -53,14 +56,4 @@ function cardanowire_install () {
 		PRIMARY KEY (tag,article)
 	) $charset_collate;";
 	dbDelta( $sql ); 
-	function extra_post_info_menu(){    
-		$page_title = 'WordPress Extra Post Info';   
-		$menu_title = 'Extra Post Info';   
-		$capability = 'manage_options';   
-		$menu_slug  = 'addextrainfoslug';   
-		$function   = '';   
-		$icon_url   = '';   
-		$position   = 4;    
-		add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position ); 
-	}
 }
