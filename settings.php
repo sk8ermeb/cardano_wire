@@ -9,11 +9,11 @@ function cardano_wire_admin_add_page() {
 function cardano_wire_options_page() {
 ?>
 <div>
-<h2>My custom plugin</h2>
-Options relating to the Custom Plugin.
+<h2>Cardano Wire</h2>
+Configuration to pull data from the blockchain and ipfs
 <form action="options.php" method="post">
-<?php settings_fields('plugin_options'); ?>
-<?php do_settings_sections('plugin'); ?>
+<?php settings_fields('cardano_wire_settings'); ?>
+<?php do_settings_sections('cardano_wire'); ?>
  
 <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
 </form></div>
@@ -21,23 +21,23 @@ Options relating to the Custom Plugin.
 <?php
 }
 
-function plugin_setting_string() {
-$options = get_option('plugin_options');
-echo "<input id='plugin_text_string' name='plugin_options[text_string]' size='40' type='text' value='{$options['text_string']}' />";
+function cardano_wire_setting_string() {
+$options = get_option('cardano_wire_settings');
+echo "<input id='cardano_wire_settings_id' name='cardano_wire_settings[api_key]' size='40' type='text' value='{$options['api_key']}' />";
 } 
 
-add_action('admin_init', 'plugin_admin_init');
-function plugin_admin_init(){
-	register_setting( 'plugin_options', 'plugin_options', 'plugin_options_validate' );
-	add_settings_section('plugin_main', 'Main Settings', 'plugin_section_text', 'plugin');
-	add_settings_field('plugin_text_string', 'Plugin Text Input', 'plugin_setting_string', 'plugin', 'plugin_main');
+add_action('admin_init', 'cardano_wire_admin_init');
+function cardano_wire_admin_init(){
+	register_setting( 'cardano_wire_settings', 'cardano_wire_settings', 'cardano_wire_options_validate' );
+	add_settings_section('cardano_wire_main', 'Blockfrost Settings', 'cardano_wire_section_text', 'cardano_wire');
+	add_settings_field('cardano_wire_settings_id', 'Blockfrost Cardano API Key', 'cardano_wire_setting_string', 'cardano_wire', 'cardano_wire_main');
 }
 
-function plugin_section_text() {
-	echo '<p>Main description of this section here.</p>';
+function cardano_wire_section_text() {
+	echo '<p>Blockfrost Settings</p>';
 }
 
-function plugin_options_validate($input) {
+function cardano_wire_options_validate($input) {
 //$newinput['text_string'] = trim($input['text_string']);
 //if(!preg_match('/^[a-z0-9]{32}$/i', $newinput['text_string'])) {
 //$newinput['text_string'] = '';
