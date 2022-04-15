@@ -1,4 +1,5 @@
 <?php
+require_once( __DIR__.'/../../../wp-load.php' );
 function getfrosted($url, $apikey)
 {
   $headers = array('http'=> array(
@@ -87,7 +88,7 @@ function ArticleScan($apikey, $page=1)
 			}
 		}
 	
-		$ipfs = $nft_meta->article;
+		$ipfs = $nft_meta->ipfs;
 		//$mintdate = $nft_meta->mintdate;
 		$hexname = bin2hex($nft_name);
 		$asset = "$policy$hexname";
@@ -147,19 +148,23 @@ function ArticleScan($apikey, $page=1)
 }
 function getapi()
 {
-	$dir = dirname(__FILE__);
+	$options = get_option('cardano_wire_settings');
+	$apikey = $options['blockfrost_cardano_api_key'];
+	/*$dir = dirname(__FILE__);
 	$dir .= "/pass.txt";
 	$myfile = fopen($dir, "r") or die("Unable to open file!");
 	$jsontxt = fread($myfile,filesize($dir));
 	fclose($myfile);
 	$data = json_decode($jsontxt, true);
   $apikey = $data["apikey"];
+	*/
 	return $apikey;
 }
 //getutxos('addr1vy7xr3vuj8vxr47c9lzfzrl8z5hwdaj5eflrs04hnt34fnq0grylw', $apikey);
 //teststuff($apikey)
 //gettxmetas($apikey);
-$apikey = getapi();
-IPFSGateway($apikey, "QmXeq9APEF3deRP5ZQu69YatuBZ5gmHY4juwVCqyoZ6TBd");
+//$apikey = getapi();
+//print($apikey);
+//IPFSGateway($apikey, "QmXeq9APEF3deRP5ZQu69YatuBZ5gmHY4juwVCqyoZ6TBd");
 //teststuff($apikey);
 ?>

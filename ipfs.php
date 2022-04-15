@@ -6,11 +6,15 @@ function getipfsfile($ipfshash, $maxsize, $filefinal)
 	//$ext = $article['ext'];
 	//$filetmp = "/var/www/html/nftfiles/$ipfshash.$ext.tmp";
 	//$filefinal = "/var/www/html/nftfiles/$ipfshash.$ext";
-	$filetmp = $filefinal."tmp";
+	$filetmp = $filefinal.".tmp";
 	$myfile = fopen($filetmp, "w");
 	$batch = 1024*100;
 	$iteration = 0;
 	$toobig = true;
+	if(strlen($ipfshash)!= 46)
+	{
+		return false;
+	}
 	while((($iteration+1)*$batch) < $maxbytes)
 	{
 		$offset = $iteration * $batch;
@@ -22,9 +26,7 @@ function getipfsfile($ipfshash, $maxsize, $filefinal)
 		curl_setopt($tuCurl, CURLOPT_CONNECTTIMEOUT, 5); // 5 seconds timeout
 		curl_setopt($tuCurl, CURLOPT_POST, true); // 5 seconds timeout
 
-		$tuData = curl_exec($tuCurl);
 		$dl = strlen($tuData);
-		//print("dl = $dl. iteration = $iteration batch = $batch maxbytes = $maxbytes\n");
 		curl_close($tuCurl);
 		fwrite($myfile, $tuData);
 		if($dl < $batch)
@@ -38,7 +40,13 @@ function getipfsfile($ipfshash, $maxsize, $filefinal)
 	fclose($myfile);
 	if(!$toobig){
 		rename($filetmp, $filefinal);
-		return true;
+		if(file_exists($filefinal))
+		{
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	else{
 		unlink($filetmp);

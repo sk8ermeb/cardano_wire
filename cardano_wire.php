@@ -16,16 +16,6 @@
 
 require __DIR__ . '/settings.php';
 
-//add_action('admin_menu', 'cardano_wire_setup_menu');
-//function cardano_wire_setup_menu(){
-//	        add_menu_page( 'Cardano Wire Settings Page', 'Cardano Wire', 'manage_options', 'cardano_wire', 'cardano_wire_settings' );
-//}
-//add_action( 'wp_nav_menu_item_custom_fields', 'my_menu_item_field' );
-//add_action( 'wp_nav_menu_item_custom_fields', 'pr_menu_item_sub', 10, 2 );
-//add_action( 'wp_update_nav_menu_item', 'save_menu_item_sub', 10, 2 );
-//add_filter( 'nav_menu_item_title', 'show_menu_item_sub', 10, 2 );
-
-register_activation_hook( __FILE__, 'cardanowire_install' );
 function cardanowire_install () {
 	global $wpdb;
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -56,4 +46,10 @@ function cardanowire_install () {
 		PRIMARY KEY (tag,article)
 	) $charset_collate;";
 	dbDelta( $sql ); 
+	$mediadir = __DIR__.'/../../uploads/cardano_wire';
+	if (!file_exists($mediadir)) {
+		umask(0000);
+    $success = mkdir($mediadir, 0777, true);
+	}
 }
+register_activation_hook( __FILE__, 'cardanowire_install' );

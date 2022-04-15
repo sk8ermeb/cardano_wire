@@ -21,16 +21,16 @@ Configuration to pull data from the blockchain and ipfs
 <?php
 }
 
-function cardano_wire_setting_string() {
-$options = get_option('cardano_wire_settings');
-echo "<input id='cardano_wire_settings_id' name='cardano_wire_settings[api_key]' size='40' type='text' value='{$options['api_key']}' />";
+function blockfrost_cardano_api_setting_string() {
+	$options = get_option('cardano_wire_settings');
+	echo "<input id='cardano_wire_settings_id' name='cardano_wire_settings[blockfrost_cardano_api_key]' size='40' type='text' value='{$options['blockfrost_cardano_api_key']}' />";
 } 
 
 add_action('admin_init', 'cardano_wire_admin_init');
 function cardano_wire_admin_init(){
 	register_setting( 'cardano_wire_settings', 'cardano_wire_settings', 'cardano_wire_options_validate' );
 	add_settings_section('cardano_wire_main', 'Blockfrost Settings', 'cardano_wire_section_text', 'cardano_wire');
-	add_settings_field('cardano_wire_settings_id', 'Blockfrost Cardano API Key', 'cardano_wire_setting_string', 'cardano_wire', 'cardano_wire_main');
+	add_settings_field('cardano_wire_settings_id', 'Blockfrost Cardano API Key', 'blockfrost_cardano_api_setting_string', 'cardano_wire', 'cardano_wire_main');
 }
 
 function cardano_wire_section_text() {
@@ -38,12 +38,7 @@ function cardano_wire_section_text() {
 }
 
 function cardano_wire_options_validate($input) {
-//$newinput['text_string'] = trim($input['text_string']);
-//if(!preg_match('/^[a-z0-9]{32}$/i', $newinput['text_string'])) {
-//$newinput['text_string'] = '';
-//}
-//return $newinput;
-return $input;
+	return $input;
 }
 
 ?>
