@@ -15,7 +15,8 @@
 
 
 require __DIR__ . '/settings.php';
-
+require __DIR__ . '/previewarticle.php';
+add_shortcode( 'article_preview' , 'article_preview');
 function cardanowire_install () {
 	global $wpdb;
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
