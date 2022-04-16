@@ -73,56 +73,95 @@ function article_preview(){
     echo "Somethign went wrong. Aticle not found";
   }
 	else{
-		echo print_r($results, true);
-
-}
- /* else
-  {
 		//echo print_r($results, true);
-    $meta = $results[0]->meta;
-		$addr = $results[0]->addr;
-    $data = json_decode($meta, True);
-    $data = reset($data);
-    $data = reset($data);
-    $data = reset($data);
+		$newfolder = substr($results[0]->location, 0, strlen($results[0]->location) - 4);
 		
-    //$policyid =
-    //$work = print_r($data, True);
-    //$work = array_values($work)[0];
-    //$work = reset($work);
-    //$work = reset($work);
-    //echo $work;
-    $loc = $data->location;
-    $policy = substr($nft, 0, strpos($nft, '.'));
-    $html = "<table>";
-    $ipfs = "";
-    $ext = "";
-    expand_array($data, $html, $ipfs, $ext);
-    $html .= "<tr><th>Minted Address</th><td>$addr</td></tr>";
-		//$html .= 
-    $html = $html."</table>";
-		
-		echo $html;
-		//$fullfile = $ipfs;
-		$hash = $ipfs;
-		if(strpos($hash, "ipfs://")===0)
-		{
-			$hash = substr($hash, 7);
+		if (!file_exists($newfolder)) {
+			umask(0000);
+    	mkdir($newfolder, 0777, true);
+			$zip = new ZipArchive;
+			$res = $zip->open($results[0]->location);
+			if ($res === TRUE) {
+  			$zip->extractTo($newfolder);
+  			$zip->close();
+			}
 		}
-		$fullfile = $hash;
-		if(strlen( $ext) > 0)
-		{
-			$fullfile = $hash.".".$ext;
+		$upload_dir = wp_upload_dir();
+ 
+		$upurl = $upload_dir['baseurl'];
+		$upurl = $upurl."/cardano_wire/".$results[0]->ipfs;
+// Single Site
+		//echo $upurl;
+		echo "Donations Address: ".$results[0]->addressowner.". Publish Date:".$results[0]->mintdate."<br/>";
+		$htmlfile = "$newfolder/article.html";
+		$myfile = fopen($htmlfile, "r");
+		$contents = fread($myfile,filesize($htmlfile));
+		$doc = new DOMDocument();
+		$doc->loadHTML($contents);    
+		$elements = $doc->getElementsByTagName('img');
+		foreach($elements as $element) {
+    	$src =  $element->getAttribute('src');
+			$element->setAttribute('src', "$upurl/$src");
 		}
-		echo "Your article data can be pulled from any public ipfs gateway. For
-example try pasting the following link into your
-browser:<br/>
-<a href=\"https://nftstorage.link/ipfs/$hash\">https://nftstorage.link/ipfs/$hash</a>
- <br /> 
-You can see your asset on any major block explorer. Keep in mind that the standard tag for image NFTs is 721 and articles are 1985 so they usually won't show you all the meta data on the block chain:<br/>
-<a href=\"https://pool.pm/$addr\">https://pool.pm/$addr</a>";
+		$elements = $doc->getElementsByTagName('video');
+		foreach($elements as $element) {
+			$children = $element->childNodes;
+			foreach ($children as $child)
+			{
+				if($child->tagName == "source")
+				{
+					$src =  $child->getAttribute('src');
+					$child->setAttribute('src', "$upurl/$src");
+				}
+			}
+		}
+		$elements = $doc->getElementsByTagName('audio');
+		foreach($elements as $element) {
+			$children = $element->childNodes;
+			foreach ($children as $child)
+			{
+				if($child->tagName == "source")
+				{
+					$src =  $child->getAttribute('src');
+					$child->setAttribute('src', "$upurl/$src");
+				}
+			}
+		}
+		$elements = $doc->getElementsByTagName('embed');
+		foreach($elements as $element) {
+    	$src =  $element->getAttribute('src');
+			$element->setAttribute('src', "$upurl/$src");
+		}
+		$contents = $doc->saveHTML(); 
+		echo $contents;
+		//outputscript($upurl);	
+	}
+}
 
+function outputscript($upurl)
+{
+		?>
+		<script>
+			function img_find() {
+ 			var imgs = document.getElementsByTagName("img");
+    	var imgSrcs = [];
 
-  }
-*/
+    	for (var i = 0; i < imgs.length; i++) {
+				alert(imgs[i].class);
+				if(imgs[i].class === "CPW1985")
+				{
+					var src = imgs[i].src;
+					var lio = src.lastIndexOf('/');
+					src = src.substring(lio, src.length - lio);
+					alert(src);
+				}
+        //imgSrcs.push(imgs[i].src);
+    	}
+
+    	return imgSrcs;
+			}
+		//alert("running");	
+		img_find();
+		</script>
+    <?php
 }
