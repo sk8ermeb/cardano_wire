@@ -13,7 +13,7 @@ function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $ad
 	$apikey = getapi();
 	$totalextracted = 0;
 	$articles = ArticleScan($apikey, $pagecount);
-	print(print_r($articles, true));
+	//print(print_r($articles, true));
 	while($articles!==false)
 {
 	
@@ -70,14 +70,31 @@ function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $ad
 		$good = getipfsfile($ipfshash, $maxbytes, $filefinal);
 		if(!$good){
 			print("Skipped ".$article['name']." too big or missing ipfs hash or file\n");
-			unlink($filetmp);
+			if(file_exists($filetmp))
+			{
+				unlink($filetmp);
+			}
 			continue;
 		}
 
 		$table_name_article = $wpdb->prefix . "cardanowire_articlecache";
 		$table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";
 		
-		
+		$sql = $wpdb->prepare("SELECT * FROM $table_name_article WHERE asset = %s;", $article['asset']);
+  	$result = $wpdb->get_results($sql);
+		if(count($result) > 0)
+		{
+			print("Skipping, ".$article['name']." article already in database\n");
+			//print(" current article: ".print_r($result[0], true)."\n\nBlockchain article:".print_r($article, true)."\n");
+			if($article['owner'] != $result[0]->addressowner)
+			{
+				$updated = $wpdb->update( $table_name_article, array( 'addressowner' => $article['owner']), array( 'id' => $result[0]->id ));
+				print("NFT has new owner, updating = ".strval($updated)."\n");
+			}
+			continue;
+		}
+				
+
 		$res = $wpdb->insert($table_name_article, array(
 			'name' => $article['name'],
 			'location' => $filefinal,

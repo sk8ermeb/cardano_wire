@@ -8,8 +8,8 @@ function getfrosted($url, $apikey)
     )
   );
 	$context = stream_context_create($headers);
-	//$json = @file_get_contents($url, false, $context);
-	$json = file_get_contents($url, false, $context);
+	$json = @file_get_contents($url, false, $context);
+	//$json = file_get_contents($url, false, $context);
 	if($json === false)
 	{
 		return false;
