@@ -10,14 +10,55 @@ function logpr($data)
 
 }
 
+function deleteDir($dirPath) {
+    if (! is_dir($dirPath)) {
+        throw new InvalidArgumentException("$dirPath must be a directory");
+    }
+    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+        $dirPath .= '/';
+    }
+    $files = glob($dirPath . '*', GLOB_MARK);
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            deleteDir($file);
+        } else {
+            unlink($file);
+        }
+    }
+    rmdir($dirPath);
+}
 
 
 
 function article_preview(){
-  $article = strval($_GET['id']);
+
   global $wpdb;
 	global $wp;
 	$table_name_article = $wpdb->prefix . "cardanowire_articlecache";
+	
+	$discard = $_GET["discard"];
+	$publish = $_GET["publish"];
+	if($publish > 0)
+	{
+		echo "publishing $publish";
+	}
+	if($discard > 0)
+	{
+		$updated = $wpdb->update( $table_name_article, array( 'status' => -1), array( 'id' => $discard ));
+		$upload_dir = wp_upload_dir();
+		$upurl = $upload_dir['baseurl'];
+	  $upurl = $upurl."/cardano_wire/".$ipfs;
+  	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE id = %d", array($discard) );
+  	$results = $wpdb->get_results($sql);
+		$loc = $results[0]->location;
+		$res = unlink($results[0]->location);
+		$newfolder = substr($results[0]->location, 0, strlen($results[0]->location) - 4);
+		deleteDir($newfolder);		
+		$name = $results[0]->name;
+		echo "Discarded $name <br />";
+	}
+	//echo "--$discard--$publish--";
+  $article = strval($_GET['id']);
 
 
 	if($article ==false)
@@ -86,82 +127,69 @@ function article_preview(){
   			$zip->close();
 			}
 		}
-		$upload_dir = wp_upload_dir();
- 
-		$upurl = $upload_dir['baseurl'];
-		$upurl = $upurl."/cardano_wire/".$results[0]->ipfs;
+		
 // Single Site
 		//echo $upurl;
 		echo "Donations Address: ".$results[0]->addressowner.". Publish Date:".$results[0]->mintdate."<br/>";
 		$htmlfile = "$newfolder/article.html";
 		$myfile = fopen($htmlfile, "r");
 		$contents = fread($myfile,filesize($htmlfile));
-		$doc = new DOMDocument();
-		$doc->loadHTML($contents);    
-		$elements = $doc->getElementsByTagName('img');
-		foreach($elements as $element) {
-    	$src =  $element->getAttribute('src');
-			$element->setAttribute('src', "$upurl/$src");
-		}
-		$elements = $doc->getElementsByTagName('video');
-		foreach($elements as $element) {
-			$children = $element->childNodes;
-			foreach ($children as $child)
-			{
-				if($child->tagName == "source")
-				{
-					$src =  $child->getAttribute('src');
-					$child->setAttribute('src', "$upurl/$src");
-				}
-			}
-		}
-		$elements = $doc->getElementsByTagName('audio');
-		foreach($elements as $element) {
-			$children = $element->childNodes;
-			foreach ($children as $child)
-			{
-				if($child->tagName == "source")
-				{
-					$src =  $child->getAttribute('src');
-					$child->setAttribute('src', "$upurl/$src");
-				}
-			}
-		}
-		$elements = $doc->getElementsByTagName('embed');
-		foreach($elements as $element) {
-    	$src =  $element->getAttribute('src');
-			$element->setAttribute('src', "$upurl/$src");
-		}
-		$contents = $doc->saveHTML(); 
+		$contents = processdom($contents, $results[0]->ipfs);
 		echo $contents;
-		//outputscript($upurl);	
+		?>
+		<form>
+		 <input type="submit" value="Publish">
+		<input type="hidden" id="publish" name="publish" value="<?php echo $article;?>">
+		</form>
+		<form>
+		 <input type="submit" value="Discard">
+		<input type="hidden" id="discard" name="discard" value="<?php echo $article;?>">
+		</form>
+		<?php
 	}
 }
-
-function outputscript($upurl)
+function processdom($contents, $ipfs)
 {
-		?>
-		<script>
-			function img_find() {
- 			var imgs = document.getElementsByTagName("img");
-    	var imgSrcs = [];
-
-    	for (var i = 0; i < imgs.length; i++) {
-				alert(imgs[i].class);
-				if(imgs[i].class === "CPW1985")
-				{
-					var src = imgs[i].src;
-					var lio = src.lastIndexOf('/');
-					src = src.substring(lio, src.length - lio);
-					alert(src);
-				}
-        //imgSrcs.push(imgs[i].src);
-    	}
-
-    	return imgSrcs;
+	$upload_dir = wp_upload_dir();
+	$upurl = $upload_dir['baseurl'];
+	$upurl = $upurl."/cardano_wire/".$ipfs;
+	$doc = new DOMDocument();
+	$doc->loadHTML($contents);    
+	$elements = $doc->getElementsByTagName('img');
+	foreach($elements as $element) {
+   	$src =  $element->getAttribute('src');
+		$element->setAttribute('src', "$upurl/$src");
+	}
+	$elements = $doc->getElementsByTagName('video');
+	foreach($elements as $element) {
+		$children = $element->childNodes;
+		foreach ($children as $child)
+		{
+			if($child->tagName == "source")
+			{
+				$src =  $child->getAttribute('src');
+				$child->setAttribute('src', "$upurl/$src");
 			}
-		//alert("running");	
-		img_find();
-		</script>
-    <?php
+		}
+	}
+	$elements = $doc->getElementsByTagName('audio');
+	foreach($elements as $element) {
+		$children = $element->childNodes;
+		foreach ($children as $child)
+		{
+			if($child->tagName == "source")
+			{
+				$src =  $child->getAttribute('src');
+				$child->setAttribute('src', "$upurl/$src");
+			}
+		}
+	}
+	$elements = $doc->getElementsByTagName('embed');
+	foreach($elements as $element) {
+   	$src =  $element->getAttribute('src');
+		$element->setAttribute('src', "$upurl/$src");
+	}
+	$contents = $doc->saveHTML(); 
+	return $contents;
 }
+
