@@ -201,7 +201,7 @@ function article_preview(){
 <tr><td>More Resent Then:</td><td><input type="text" id="old" name="old" value="2022-04-10 18:04:45"></td></tr>
 <tr><td>Max Article Size</td><td><input type="text" id="maxsize" name="maxsize" value="10"></td></tr>
 <tr><td>Minimum Stacked ADA</td><td><input type="text" id="minstacked" name="minstacked" value="5"></td></tr>
-<tr><td>Tags (comma separated)</td><td><input type="text" id="tags" name="tags" value="world news, ukraine"></td></tr>
+<tr><td>Tags (comma separated)</td><td><input type="text" id="tags" name="tags" value=""></td></tr>
 <tr><td>Publishers Address</td><td><input type="text" id="adaadress" name="adaadress" value="addr1vyh44zmfkeph7hw2c0hnclpzsy9dlxsas4477982vwfxapck875t5"></td></tr>
 </table>
 <input type="submit" value="Scan For Articles">
