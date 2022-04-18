@@ -51,8 +51,9 @@ function article_preview(){
     	$myfile = fopen($htmlfile, "r");
     	$contents = fread($myfile,filesize($htmlfile));
     	$contents = processdom($contents, $results[0]->ipfs);
+			$contents = "Donation Address: ".$results[0]->addressowner."<br />".$contents;
 			$table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";	
-  		$sql = $wpdb->prepare( "SELECT * FROM $table_name_articletags WHERE article = %d", array($article->id) );
+  		$sql = $wpdb->prepare( "SELECT * FROM $table_name_articletags WHERE article = %d", array($results[0]->id) );
   		$tagresults = $wpdb->get_results($sql);
 			$tags = [];
 			if(count($tagresults)>0)
@@ -62,11 +63,12 @@ function article_preview(){
 					array_push($tags, $atag->tag);
 				}
 			}
-			$postarr = ['post_title'=>$results[0]->name, 'post_content'=>$contents, 
+			$postarr = ['post_title'=>$results[0]->name, 'post_content'=>$contents, 'post_name'=>$results[0]->name, 
 				'tags_input'=>$tags, 'post_date_gmt'=>$results[0]->mintdate];
 			//$postarr = ['post_title'=>"blabla"];
 			$ret = wp_insert_post($postarr);
-			echo "return = $ret <br />";
+			//echo "return = $ret <br />";
+			wp_publish_post($ret);
 		}
 		echo "publishing $publish";
 	}
