@@ -36,9 +36,10 @@ function blockarticleextract($criteria)
 	$totalextracted = 0;
 	$articles = ArticleScan($apikey, $pagecount);
 	//echo (print_r($articles, true));
+	//echo "here??".print_r($articles, true);
 	while($articles!==false)
 	{
-	
+		//echo strval(count($articles))." on page scan ";	
 	foreach($articles as $article)
 	{
 		if(!is_null($address))
@@ -90,7 +91,21 @@ function blockarticleextract($criteria)
 		$ext = $article['ext'];
 		$filefinal = "$mediadir$ipfshash.$ext";
 		//print("\n-----------------\n".$filefinal."\n---------------------\n");
-		$good = getipfsfile($ipfshash, $maxbytes, $filefinal);
+		$options = get_option('cardano_wire_settings');
+		$ipfs_selection = $options['ipfs_selection'];
+		echo "AAAAAAAA$ipfs_selection";
+		$good = false;
+		if($ipfs_selection == 'nftstorage.link')
+		{
+			echo "STORAGE LINK";
+			$good = getipfsfilefromnftstoragelink($ipfshash, $maxbytes, $filefinal);
+		}
+		else
+		{
+			echo "LOCAL HOST";
+			$good = getipfsfile($ipfshash, $maxbytes, $filefinal);
+		}
+		echo "good = $good";
 		if(!$good){
 			print("Skipped ".$article['name']." too big or missing ipfs hash or file\n");
 			if(file_exists($filetmp))

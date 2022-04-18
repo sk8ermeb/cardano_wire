@@ -35,8 +35,8 @@ function blockfrost_cardano_api_setting_string() {
 
 function ipfs_cardano_api_setting_string() {
 	$options = get_option('cardano_wire_settings');
-$ipfs_selection = $options['ipfs_selection'];
-	echo print_r($options, true)."<br/> $ipfs_selection <br />";
+	$ipfs_selection = $options['ipfs_selection'];
+	//echo print_r($options, true)."<br/> $ipfs_selection <br />";
   ?>
   <input type="radio" id="nftstorage.link" name="cardano_wire_settings[ipfs_selection]" value="nftstorage.link" <?php if($ipfs_selection == "nftstorage.link"){ echo 'checked="checked"'; } ?>>
   <label for="nftstorage.link">nftstorage.link</label><br>
