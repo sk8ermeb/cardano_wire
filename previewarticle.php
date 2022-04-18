@@ -42,9 +42,9 @@ function article_preview(){
 	if($publish > 0)
 	{
 		$updated = $wpdb->update( $table_name_article, array( 'status' => 1), array( 'id' => $publish ));
-  	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE id = %d", array($discard) );
+  	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE id = %d", array($publish) );
   	$results = $wpdb->get_results($sql);
-		if(count($results) ==1)
+		if(count($results) > 0)
 		{
 			$newfolder = substr($results[0]->location, 0, strlen($results[0]->location) - 4);
 			$htmlfile = "$newfolder/article.html";
@@ -64,7 +64,9 @@ function article_preview(){
 			}
 			$postarr = ['post_title'=>$results[0]->name, 'post_content'=>$contents, 
 				'tags_input'=>$tags, 'post_date_gmt'=>$results[0]->mintdate];
-			wp_insert_post($postarr);
+			//$postarr = ['post_title'=>"blabla"];
+			$ret = wp_insert_post($postarr);
+			echo "return = $ret <br />";
 		}
 		echo "publishing $publish";
 	}
