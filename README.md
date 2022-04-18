@@ -1,6 +1,6 @@
-# cardano_wire
+# Cardano Wire Wordpress Plugin
 ## Installation
-Wordpress plugin for pulling articles off the cardano blockchain and publishing to your site. This requires that you have a blockfost.io Cardano mainnet key and an ipfs node running locally on your server. The next release will have a variety of public ipfs gateway option so you don't have to install anything on your server.
+Wordpress plugin for pulling articles off the cardano blockchain and publishing to your site. This is based on https://pressmint.io/ minting nft articles. This requires that you have a blockfost.io Cardano mainnet key and an ipfs node running locally on your server. The next release will have a variety of public ipfs gateway option so you don't have to install anything on your server.
 * https://blockfrost.io/dashboard
 * https://docs.ipfs.io/install/command-line/#official-distributions  
   
