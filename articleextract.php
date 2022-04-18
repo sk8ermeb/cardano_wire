@@ -8,26 +8,26 @@ require_once( __DIR__.'/../../../wp-load.php' );
 function blockarticleextract($criteria)
 {
 	$oldest = new DateTime("2022-04-10 18:04:45");
-	if(array_key_exists('oldest')){
+	if(array_key_exists('oldest', $criteria)){
 		$oldest = $criteria['oldest'];
 	}
 	$minada=5;
-	if(array_key_exists('minada')){
+	if(array_key_exists('minada', $criteria)){
 		$minada = $criteria['minada'];
 	}
 	$maxsize=10;
-	if(array_key_exists('maxsize')){
+	if(array_key_exists('maxsize', $criteria)){
 		$maxsize = $criteria['maxsize'];
 	}
 	$tags=[];
-	if(array_key_exists('tags')){
+	if(array_key_exists('tags', $criteria)){
 		$tags = $criteria['tags'];
 	}
 	$address=null;
-	if(array_key_exists('address')){
+	if(array_key_exists('address', $criteria)){
 		$address = $criteria['address'];
 	}
-
+	//echo "minada = $minada, max size = $maxsize, addr = $address, ".print_r($tags, true).", dt = ".$oldest->format('Y-m-d H:i:s')."<br/><br/>";
 	$mediadir = __DIR__.'/../../uploads/cardano_wire/';
 	global $wpdb;
 	$pagecount = 1;
@@ -35,7 +35,7 @@ function blockarticleextract($criteria)
 	$apikey = getapi();
 	$totalextracted = 0;
 	$articles = ArticleScan($apikey, $pagecount);
-	//print(print_r($articles, true));
+	//echo (print_r($articles, true));
 	while($articles!==false)
 	{
 	
@@ -45,7 +45,7 @@ function blockarticleextract($criteria)
 		{
 			if($article['owner'] !== $address)
 			{
-				print("Skipped ".$article['name']." wrong owner\n");
+				print("Skipped ".$article['name']." wrong owner. \n");
 				continue;				
 			}
 		}
@@ -54,14 +54,14 @@ function blockarticleextract($criteria)
 			$mintdt = new DateTime($article['mintdate']);
 			if($mintdt<$oldest)
 			{
-				print("Skipped ".$article['name']." article too old\n");
+				print("Skipped ".$article['name']." article too old. \n");
 				continue;
 			}
 		}
 		$lovelace = intval($article['lovelace']);
 		if($lovelace < ($minada *1000000))
 		{
-			print("Skipped ".$article['name']."Not enough lovelace\n");
+			print("Skipped ".$article['name']."Not enough lovelace. \n");
 			continue;
 		}
 		
@@ -80,6 +80,7 @@ function blockarticleextract($criteria)
 			}
 			if(!$found)
 			{
+				echo "Skipped ".$article['name']." not tagged. \n";
 				continue;
 			}
 		}

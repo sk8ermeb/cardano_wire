@@ -96,7 +96,7 @@ function article_preview(){
 		$criteria = [];
 		if(strlen($tags) > 0)
 		{
-			$tags = explode($tags);
+			$tags = explode(',', $tags);
 			$trimtags = [];
 			//$data = explode(',', "abc , def, hij,klm, ");
 			foreach($tags as $tag)
