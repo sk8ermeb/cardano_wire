@@ -1,5 +1,5 @@
 <?php
-
+require __DIR__ . '/articleextract.php';
 function logpr($data)
 {
   $myfile = fopen("log.txt", "a");
@@ -38,16 +38,42 @@ function article_preview(){
 	
 	$discard = $_GET["discard"];
 	$publish = $_GET["publish"];
+	$scan = $_GET["scan"];
 	if($publish > 0)
 	{
+		$updated = $wpdb->update( $table_name_article, array( 'status' => 1), array( 'id' => $publish ));
+  	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE id = %d", array($discard) );
+  	$results = $wpdb->get_results($sql);
+		if(count($results) ==1)
+		{
+			$newfolder = substr($results[0]->location, 0, strlen($results[0]->location) - 4);
+			$htmlfile = "$newfolder/article.html";
+    	$myfile = fopen($htmlfile, "r");
+    	$contents = fread($myfile,filesize($htmlfile));
+    	$contents = processdom($contents, $results[0]->ipfs);
+			$table_name_articletags = $wpdb->prefix . "cardanowire_article_tags";	
+  		$sql = $wpdb->prepare( "SELECT * FROM $table_name_articletags WHERE article = %d", array($article->id) );
+  		$tagresults = $wpdb->get_results($sql);
+			$tags = [];
+			if(count($tagresults)>0)
+			{
+				foreach($tagresults as $atag)
+				{
+					array_push($tags, $atag->tag);
+				}
+			}
+			$postarr = ['post_title'=>$results[0]->name, 'post_content'=>$contents, 
+				'tags_input'=>$tags, 'post_date_gmt'=>$results[0]->mintdate];
+			wp_insert_post($postarr);
+		}
 		echo "publishing $publish";
 	}
 	if($discard > 0)
 	{
 		$updated = $wpdb->update( $table_name_article, array( 'status' => -1), array( 'id' => $discard ));
-		$upload_dir = wp_upload_dir();
-		$upurl = $upload_dir['baseurl'];
-	  $upurl = $upurl."/cardano_wire/".$ipfs;
+		//$upload_dir = wp_upload_dir();
+		//$upurl = $upload_dir['baseurl'];
+	  //$upurl = $upurl."/cardano_wire/".$ipfs;
   	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE id = %d", array($discard) );
   	$results = $wpdb->get_results($sql);
 		$loc = $results[0]->location;
@@ -58,9 +84,70 @@ function article_preview(){
 		echo "Discarded $name <br />";
 	}
 	//echo "--$discard--$publish--";
+	if($scan > 0)
+	{
+		//trim($stdout, " \n\r\t\v\0");
+		$maxsize = trim($_GET["maxsize"], " \n\r\t\v\0");
+		$old = trim($_GET["old"], " \n\r\t\v\0");
+		$tags = trim($_GET["tags"], " \n\r\t\v\0");
+		$minstacked = trim($_GET["minstacked"], " \n\r\t\v\0");
+		$adaadress = trim($_GET["adaadress"], " \n\r\t\v\0");
+		//function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $address=null)	
+		$criteria = [];
+		if(strlen($tags) > 0)
+		{
+			$tags = explode($tags);
+			$trimtags = [];
+			//$data = explode(',', "abc , def, hij,klm, ");
+			foreach($tags as $tag)
+			{
+				$tag = trim($tag, " \n\r\t\v\0");
+				array_push($trimtags, $tag);
+			}
+			$criteria['tags'] = $trimtags;
+		}
+		if(strlen($adaadress) > 0)
+		{
+			$criteria['address'] = $adaadress;
+		}
+		//"adaadress"
+		if(strlen($maxsize) > 0)
+		{
+			$maxsize = intval($maxsize);
+			if($maxsize > 0){
+				$criteria['maxsize'] = $maxsize;
+			}
+			else{
+				echo "failed to parse Max size (using default of 10)<br />";
+			}
+		}
+		if(strlen($minstacked) > 0)
+		{
+			$minstacked = intval($minstacked);
+			if($minstacked > 0){
+				$criteria['minada'] = $minstacked;
+			}
+			else{
+				echo "failed to parse Min Stacked ADA (using default of 5)<br />";
+			}
+		}
+		if(strlen($old) > 0)
+		{
+			try{
+				$olddt = new DateTime($old);
+				$criteria['oldest'] = $olddt;
+			}catch (Exception $e) {
+				echo "failed to parse date (using default of April 10th 2022<br />";
+			}
+		}
+		//$olddt = new DateTime("2022-04-10 18:04:45");
+		////$cnt = blockarticleextract($old, 1.9, 4, ['cool'], $addr);
+		$extracted = blockarticleextract($criteria);
+		echo "$extracted articles extracted. <br/>";
+		//
+	}
+
   $article = strval($_GET['id']);
-
-
 	if($article ==false)
 	{
   	$sql = $wpdb->prepare( "SELECT * FROM $table_name_article WHERE status = %d", array(0) );
@@ -103,6 +190,19 @@ function article_preview(){
 		else{
 			echo "No Pending Articles for publishing. Try rescanning the Cardano Wire. ";
 		}
+?>
+<form>
+<input type="hidden" id="scan" name="scan" value="1">
+<table>
+<tr><td>More Resent Then:</td><td><input type="text" id="old" name="old" value="2022-04-10 18:04:45"></td></tr>
+<tr><td>Max Article Size</td><td><input type="text" id="maxsize" name="maxsize" value="10"></td></tr>
+<tr><td>Minimum Stacked ADA</td><td><input type="text" id="minstacked" name="minstacked" value="5"></td></tr>
+<tr><td>Tags (comma separated)</td><td><input type="text" id="tags" name="tags" value="world news, ukraine"></td></tr>
+<tr><td>Publishers Address</td><td><input type="text" id="adaadress" name="adaadress" value="addr1vyh44zmfkeph7hw2c0hnclpzsy9dlxsas4477982vwfxapck875t5"></td></tr>
+</table>
+<input type="submit" value="Scan For Articles">
+</form>
+<?php
 		return;
 	}
 
@@ -147,6 +247,8 @@ function article_preview(){
 		</form>
 		<?php
 	}
+//$old = new DateTime("2022-04-10 18:04:45");
+//$cnt = blockarticleextract($old, 1.9, 4, ['cool'], $addr);
 }
 function processdom($contents, $ipfs)
 {

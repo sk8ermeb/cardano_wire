@@ -4,8 +4,30 @@ require __DIR__ . '/ipfs.php';
 define( 'SHORTINIT', true );
 require_once( __DIR__.'/../../../wp-load.php' );
 
-function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $address=null)
+//function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $address=null)
+function blockarticleextract($criteria)
 {
+	$oldest = new DateTime("2022-04-10 18:04:45");
+	if(array_key_exists('oldest')){
+		$oldest = $criteria['oldest'];
+	}
+	$minada=5;
+	if(array_key_exists('minada')){
+		$minada = $criteria['minada'];
+	}
+	$maxsize=10;
+	if(array_key_exists('maxsize')){
+		$maxsize = $criteria['maxsize'];
+	}
+	$tags=[];
+	if(array_key_exists('tags')){
+		$tags = $criteria['tags'];
+	}
+	$address=null;
+	if(array_key_exists('address')){
+		$address = $criteria['address'];
+	}
+
 	$mediadir = __DIR__.'/../../uploads/cardano_wire/';
 	global $wpdb;
 	$pagecount = 1;
@@ -15,7 +37,7 @@ function blockarticleextract($oldest=null, $minada=4, $maxsize=10, $tags=[], $ad
 	$articles = ArticleScan($apikey, $pagecount);
 	//print(print_r($articles, true));
 	while($articles!==false)
-{
+	{
 	
 	foreach($articles as $article)
 	{
@@ -126,10 +148,10 @@ return $totalextracted;
 
 //$mintdate = date('Y-m-d H:i:s');
 //$dt = new DateTime($mintdate);
-$addr = "addr1vxqxgmytq4tzxthz6dlfwj0mn3f9j5mvqlw6vehfxt84wxsw8elfe";
-$addr = "addr1vy7xr3vuj8vxr47c9lzfzrl8z5hwdaj5eflrs04hnt34fnq0grylw";
-$old = new DateTime("2022-04-10 18:04:45");
+//$addr = "addr1vxqxgmytq4tzxthz6dlfwj0mn3f9j5mvqlw6vehfxt84wxsw8elfe";
+//$addr = "addr1vy7xr3vuj8vxr47c9lzfzrl8z5hwdaj5eflrs04hnt34fnq0grylw";
+//$old = new DateTime("2022-04-10 18:04:45");
 //$cnt = blockarticleextract($old, 1.9, 4, ['cool'], $addr);
-$cnt = blockarticleextract($old);
-print(strval($cnt). " Articles extracted\n");
+//$cnt = blockarticleextract($old);
+//print(strval($cnt). " Articles extracted\n");
 ?>
