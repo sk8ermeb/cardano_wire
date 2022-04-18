@@ -93,19 +93,15 @@ function blockarticleextract($criteria)
 		//print("\n-----------------\n".$filefinal."\n---------------------\n");
 		$options = get_option('cardano_wire_settings');
 		$ipfs_selection = $options['ipfs_selection'];
-		echo "AAAAAAAA$ipfs_selection";
 		$good = false;
 		if($ipfs_selection == 'nftstorage.link')
 		{
-			echo "STORAGE LINK";
 			$good = getipfsfilefromnftstoragelink($ipfshash, $maxbytes, $filefinal);
 		}
 		else
 		{
-			echo "LOCAL HOST";
 			$good = getipfsfile($ipfshash, $maxbytes, $filefinal);
 		}
-		echo "good = $good";
 		if(!$good){
 			print("Skipped ".$article['name']." too big or missing ipfs hash or file\n");
 			if(file_exists($filetmp))
