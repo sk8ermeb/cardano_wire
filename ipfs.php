@@ -1,4 +1,65 @@
 <?php
+function getipfsfilefromnblockfrost($ipfshash, $maxsize, $filefinal, $apikey)
+{
+	if(strlen($ipfshash)!= 46)
+	{
+		return false;
+	}
+	$filetmp = $filefinal.".tmp";
+	$myfile = fopen($filetmp, "w");
+	if($myfile ===false)
+	{
+		//print("unable to open file $filetmp \n");
+		return false;
+	}
+	$headers = array(
+    'project_id' => $apikey
+  );
+
+	$toobig = true;
+	$url = "https://ipfs.blockfrost.io/api/v0/ipfs/gateway/$ipfshash";
+	print("$url \n");
+	$query = http_build_query($headers);
+	print("$query \n");
+	$tuCurl = curl_init();
+	curl_setopt($tuCurl, CURLOPT_URL, $url);
+	//curl_setopt($tuCurl, CURLOPT_RETURNTRANSFER, 1);
+	//curl_setopt($tuCurl, CURLOPT_FOLLOWLOCATION, true); // 5 seconds timeout
+	//curl_setopt($tuCurl, CURLOPT_POST, true); // 5 seconds timeout
+	
+	curl_setopt($tuCurl, CURLOPT_HTTPHEADER, array(
+    "project_id: $apikey"
+	));
+	curl_setopt($tuCurl, CURLOPT_CONNECTTIMEOUT, 5); // 5 seconds timeout
+	//curl_setopt($tuCurl, CURLOPT_TIMEOUT, 60); // 5 seconds timeout
+	curl_setopt($tuCurl, CURLOPT_CONNECTTIMEOUT_MS, 60000); // 5 seconds timeout
+	//curl_setopt($tuCurl, CURLOPT_POSTFIELDS, $query);
+	//curl_setopt($tuCurl, CURLOPT_COOKIEFILE, 'amazoncookie.txt');
+ 	$tuData = curl_exec($tuCurl);		
+	print("data = $tuData\n");
+	$dl = strlen($tuData);
+	print(strval($dl)."\n\n");
+	$written = fwrite($myfile, $tuData);
+	$closed = fclose($myfile);
+	if($dl < $maxsize)
+	{
+		$toobig = false;
+	}
+	if(!$toobig){
+		rename($filetmp, $filefinal);
+		if(file_exists($filefinal))
+		{
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	else{
+		unlink($filetmp);
+		return false;
+	}
+}
 function getipfsfilefromnftstoragelink($ipfshash, $maxsize, $filefinal)
 {
 	if(strlen($ipfshash)!= 46)
@@ -108,4 +169,9 @@ function getipfsfile($ipfshash, $maxsize, $filefinal)
 }
 //getipfsfile('QmcKrWGGM6NRWadNZ7ciRb4MaUAV7D2sQMUetmHAjxHiDk', 999999, 'test.zip');
 //getipfsfilefromnftstoragelink('QmSAeSLzyxGiQAdk2VShYkq1KUhor4xhCmGyQEr8bMKP34', 20, 'data.txt');
+
+//$ipfshash = 'QmSAmx1CSctiCdis3TyszbsX8Vg2ibvaLnhUDzcFJWRKAk';
+//$maxsize = 999999;
+//$filefinal = 'test.zip';
+//getipfsfilefromnblockfrost($ipfshash, $maxsize, $filefinal, $apikey);
 ?>
